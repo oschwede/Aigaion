@@ -56,7 +56,8 @@
     function getThemeName() {
       $userlogin = getUserLogin();
         if ($userlogin->isLoggedIn()) {
-            return $userlogin->getPreference('theme');
+            $theme = $userlogin->getPreference('theme');
+            return  empty($theme)?"default":$theme;
         } else {
             return "default";
         }
