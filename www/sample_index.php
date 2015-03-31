@@ -87,7 +87,7 @@ define('MAXIMUM_ATTACHMENT_SIZE', '10000');
 | NO TRAILING SLASH!
 |
 */
-	$system_folder = "./codeigniter";
+	$system_folder = "./system";
 
 /*
 |---------------------------------------------------------------
@@ -108,7 +108,7 @@ define('MAXIMUM_ATTACHMENT_SIZE', '10000');
 | NO TRAILING SLASH!
 |
 */
-	$application_folder = "./aigaionengine";
+	$application_folder = "./application";
 
 
 /*
@@ -172,5 +172,5 @@ if ( ! defined('E_STRICT'))
 | And away we go...
 |
 */
-require_once BASEPATH.'codeigniter/CodeIgniter'.EXT;
+require_once BASEPATH.'core/CodeIgniter'.EXT;
 ?>
