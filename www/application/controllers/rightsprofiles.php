@@ -262,13 +262,8 @@ class Rightsprofiles extends CI_Controller {
         //validation rules: 
         //  -no rights profile with the same name and a different ID can exist
         //  -name is required (non-empty)
-    	$this->form_validation->set_rules(array( 'name' => 'required'
-                                           )
-                                     );
-    	$this->form_validation->set_fields(array( 'name' => __('Profile Name')
-                                           )
-                                     );
-    		
+	$this->form_validation->set_rules('name',__('Profile Name'),'required');
+
     	if ($this->form_validation->run() == FALSE) {
             //return to add/edit form if validation failed
             //get output

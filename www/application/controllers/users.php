@@ -433,22 +433,14 @@ class Users extends CI_Controller {
         //  -no user with the same login and a different ID can exist
         //  -login is required (non-empty)
         //  -password should match password_check
-        $rules = array( 'login'    => 'required',
-                        'password' => 'matches[password_check]',
-                        'password_check' => 'matches[password]'
-                       );
-        if (    ($this->input->post('action')=='add') 
+        $this->form_validation->set_rules('login',__('Login Name'),'required');
+        $this->form_validation->set_rules('password',__('First Password'),'matches[password_check]');
+        $this->form_validation->set_rules('password_check',__('Second Password'),'matches[password]');
+	if (    ($this->input->post('action')=='add')
              && ($this->input->post('type')=='normal') 
              && ($this->input->post('disableaccount') != 'disableaccount')) {
-            $rules['password'] = 'required';
+            $this->form_validation->set_rules('password',__('First Password'),'required|matches[password_check]');
         }
-    	$this->form_validation->set_rules($rules);
-    	/*
-    	$this->form_validation->set_fields(array( 'login'    => __('Login Name'),
-    	                                     'password' => __('First Password'),
-    	                                     'password_check' => __('Second Password')
-                                           )
-                                     );*/ // update ci 2.2
     		
     	if ($this->form_validation->run() == FALSE) {
             //return to add/edit form if validation failed
@@ -458,7 +450,6 @@ class Users extends CI_Controller {
             $headerdata['javascripts'] = array('tree.js','prototype.js','scriptaculous.js','builder.js');
             
             $output = $this->load->view('header', $headerdata, true);
-    
             $output .= $this->load->view('users/edit',
                                           array('user'         => $user,
                                                 'action'        => $this->input->post('action')),

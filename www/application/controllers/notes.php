@@ -203,12 +203,7 @@ class Notes extends CI_Controller {
         
         //validate form values; 
         //validation rules: 
-    	$this->form_validation->set_rules(array( 'pub_id' => 'required'
-                                           )
-                                     );
-//     	$this->form_validation->set_fields(array( 'pub_id' => __('Publication id')
-//                                            )
-//                                      );
+	$this->form_validation->set_rules('pub_id',__('Publication id'), 'required');
     		
     	if ($this->form_validation->run() == FALSE) {
             //return to add/edit form if validation failed

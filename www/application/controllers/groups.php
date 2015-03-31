@@ -262,12 +262,7 @@ class Groups extends CI_Controller {
         //validation rules: 
         //  -no group with the same name and a different ID can exist
         //  -name is required (non-empty)
-    	$this->form_validation->set_rules(array( 'name' => 'required'
-                                           )
-                                     );
-    	$this->form_validation->set_fields(array( 'name' => __('Group Name')
-                                           )
-                                     );
+	$this->form_validation->set_rules('name',__('Group Name'), 'required');
     		
     	if ($this->form_validation->run() == FALSE) {
             //return to add/edit form if validation failed

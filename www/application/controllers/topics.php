@@ -507,9 +507,7 @@ class Topics extends CI_Controller {
         //validation rules: 
         //  -no topic with the same name and a different ID can exist
         //  -name is required (non-empty)
-    	$this->form_validation->set_rules(array( 'name' => 'required'
-                                           )
-                                     );
+	$this->form_validation->set_rules('name',__('Topic Name'), 'required');
     	
     		
     	if ($this->form_validation->run() == FALSE) {
