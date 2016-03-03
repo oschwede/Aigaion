@@ -206,7 +206,8 @@ class Search_lib {
     'user'=>$user,
     'includeGroupSubscriptions'=>True
     );
-    $topicQ = $CI->db->query("SELECT * FROM ".AIGAION_DB_PREFIX."topics WHERE ".$this->keywordsToLikeQuery($keywordArray,'cleanname')." ORDER BY name;");
+    // add search on topics description
+    $topicQ = $CI->db->query("SELECT * FROM ".AIGAION_DB_PREFIX."topics WHERE ".$this->keywordsToLikeQuery($keywordArray,'cleanname')." OR ".$this->keywordsToLikeQuery($keywordArray,'description')." ORDER BY name;");
     if ($topicQ->num_rows()>0) {
       $arrayOfTopics = array();
       foreach ($topicQ->result() as $R) {
@@ -235,6 +236,7 @@ class Search_lib {
     if ($keywordQ->num_rows()>0) {
       $arrayOfKeywords = array();
       foreach ($keywordQ->result() as $R) {
+        $kw = new stdClass();
         $kw->keyword_id = $R->keyword_id;
         $kw->keyword = $R->keyword;
         $arrayOfKeywords[] = $kw;

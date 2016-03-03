@@ -293,6 +293,7 @@ class Keyword_db {
     if ($keyword_id)
     {
       //load the keyword
+      $kw = new stdClass();
       $kw->keyword_id = $keyword_id;
       $kw->keyword = $keyword;
       $kw->cleankeyword = $cleankeyword;

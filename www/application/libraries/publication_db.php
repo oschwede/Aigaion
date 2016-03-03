@@ -244,7 +244,8 @@ class Publication_db {
         {
           if ((substr($keyword, -1, 1) == ',') || (substr($keyword, -1, 1) == ';'))
             $keyword = substr($keyword, 0, strlen($keyword) - 1);
-          
+
+          $kw = new stdClass();
           $kw->keyword = $keyword;
           $keyword_array[] = $kw;
           unset($kw);
