@@ -1,0 +1,11 @@
+Use ./generate-potfile to get a fresh new potfile for the aigaion instalation
+
+Use poedit (http://www.poedit.net), msginit and msgfmt or 
+other tool to translate the potfile and generate messages.mo file
+create a specific language folder on
+<aigaion-root>/application/language/locale/xx/LC_MESSAGES, 
+where xx is the locale id (eg. 'en' for english, 'de' for denmark)
+and put messages.mo file there
+edit <aigaion-root/application/config/config.php> and include support for this language
+Create a pull request for this translation
+

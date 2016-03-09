@@ -1,4 +1,4 @@
-<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+<?php  if (!defined('BASEPATH')) exit('No direct script access allowed');
 
 /*
 | -------------------------------------------------------------------
@@ -22,27 +22,27 @@
 */
 $ROOT_PATH = dirname(FCPATH);
 # Directory where to store attachments. Default: this directory/attachments
-if (!defined('AIGAION_ATTACHMENT_DIR') || (AIGAION_ATTACHMENT_DIR=='')) {
-  define ('AIGAION_ATTACHMENT_DIR',$ROOT_PATH."/attachments");
+if (!defined('AIGAION_ATTACHMENT_DIR') || (AIGAION_ATTACHMENT_DIR == '')) {
+    define ('AIGAION_ATTACHMENT_DIR', $ROOT_PATH . "/attachments");
 }
 #URL to the webcontent: default AIGAION_ROOT_URL/webcontent/
-if (!defined('AIGAION_WEBCONTENT_URL') || (AIGAION_WEBCONTENT_URL=='')) {
-  define ('AIGAION_WEBCONTENT_URL',AIGAION_ROOT_URL.'webcontent/');
+if (!defined('AIGAION_WEBCONTENT_URL') || (AIGAION_WEBCONTENT_URL == '')) {
+    define ('AIGAION_WEBCONTENT_URL', AIGAION_ROOT_URL . 'webcontent/');
 }
-if (!defined('AIGAION_WEBCONTENT_DIR') || (AIGAION_WEBCONTENT_DIR=='')) {
-  define ('AIGAION_WEBCONTENT_DIR',$ROOT_PATH.'/webcontent/');
+if (!defined('AIGAION_WEBCONTENT_DIR') || (AIGAION_WEBCONTENT_DIR == '')) {
+    define ('AIGAION_WEBCONTENT_DIR', $ROOT_PATH . '/webcontent/');
 }
 #AIGAION_DB_PREFIX: table prefix, default "", see config/database.php
 if (!defined('AIGAION_DB_PREFIX')) {
-  define ('AIGAION_DB_PREFIX','');
+    define ('AIGAION_DB_PREFIX', '');
 }
 #EXPORT_REPLY_ADDRESS: table prefix, default ""
 if (!defined('EXPORT_REPLY_ADDRESS')) {
-  define ('EXPORT_REPLY_ADDRESS','');
+    define ('EXPORT_REPLY_ADDRESS', '');
 }
 #MAXIMUM_ATTACHMENT_SIZE: table prefix, default 10000
 if (!defined('MAXIMUM_ATTACHMENT_SIZE')) {
-  define('MAXIMUM_ATTACHMENT_SIZE', '10000');
+    define('MAXIMUM_ATTACHMENT_SIZE', '10000');
 }
 
 /*
@@ -52,21 +52,18 @@ if (!defined('MAXIMUM_ATTACHMENT_SIZE')) {
  *  
  */
 global $AIGAION_SUPPORTED_LANGUAGES;
-if (!isset($AIGAION_SUPPORTED_LANGUAGES) || !is_array($AIGAION_SUPPORTED_LANGUAGES))
-{
-  $AIGAION_SUPPORTED_LANGUAGES = array ('de', 'en', 'nl', 'no'); //default is the original set of languages from the multiling Aigaion 2.0
+if (!isset($AIGAION_SUPPORTED_LANGUAGES) || !is_array($AIGAION_SUPPORTED_LANGUAGES)) {
+    $AIGAION_SUPPORTED_LANGUAGES = array('de', 'en', 'nl', 'no', 'pt_BR'); //default is the original set of languages from the multiling Aigaion 2.0
 }
 global $AIGAION_SHORTLIST_LANGUAGES;
-if (!isset($AIGAION_SHORTLIST_LANGUAGES) || !is_array($AIGAION_SHORTLIST_LANGUAGES))
-{
-  $AIGAION_SHORTLIST_LANGUAGES = $AIGAION_SUPPORTED_LANGUAGES;
+if (!isset($AIGAION_SHORTLIST_LANGUAGES) || !is_array($AIGAION_SHORTLIST_LANGUAGES)) {
+    $AIGAION_SHORTLIST_LANGUAGES = $AIGAION_SUPPORTED_LANGUAGES;
 }
-if (!defined('AIGAION_DEFAULT_LANGUAGE'))
-{
-  define('AIGAION_DEFAULT_LANGUAGE',  'en');
+if (!defined('AIGAION_DEFAULT_LANGUAGE')) {
+    define('AIGAION_DEFAULT_LANGUAGE', 'en');
 }
 
-define('AIGSTR','A1I2G3A4I5O6N7');
+define('AIGSTR', 'A1I2G3A4I5O6N7');
 
 
 /*
@@ -83,7 +80,7 @@ define('AIGSTR','A1I2G3A4I5O6N7');
 | path to your installation.
 |
 */
-$config['base_url']	= AIGAION_ROOT_URL;
+$config['base_url'] = AIGAION_ROOT_URL;
 
 /*
 |--------------------------------------------------------------------------
@@ -113,7 +110,7 @@ $config['index_page'] = (defined('CLEAN_URLS') && CLEAN_URLS) ? '' : 'index.php'
 | 'ORIG_PATH_INFO'	Uses the ORIG_PATH_INFO
 |
 */
-$config['uri_protocol']	= 'AUTO';
+$config['uri_protocol'] = 'AUTO';
 
 /*
 |--------------------------------------------------------------------------
@@ -138,7 +135,7 @@ $config['url_suffix'] = '';
 | than english.
 |
 */
-$config['language']	= 'english';
+$config['language'] = 'english';
 
 /*
 |--------------------------------------------------------------------------
@@ -223,11 +220,11 @@ $config['permitted_uri_chars'] = 'a-z 0-9~%.:_\-';
 | use segment based URLs.
 |
 */
-$config['allow_get_array']		= TRUE;
+$config['allow_get_array'] = TRUE;
 $config['enable_query_strings'] = FALSE;
-$config['controller_trigger']	= 'c';
-$config['function_trigger']		= 'm';
-$config['directory_trigger']	= 'd'; // experimental not currently in use
+$config['controller_trigger'] = 'c';
+$config['function_trigger'] = 'm';
+$config['directory_trigger'] = 'd'; // experimental not currently in use
 
 /*
 |--------------------------------------------------------------------------
@@ -313,15 +310,15 @@ $config['encryption_key'] = '';
 | 'sess_time_to_update'		= how many seconds between CI refreshing Session Information
 |
 */
-$config['sess_cookie_name']		= 'ci_session';
-$config['sess_expiration']		= 7200;
-$config['sess_expire_on_close']	= FALSE;
-$config['sess_encrypt_cookie']	= FALSE;
-$config['sess_use_database']	= FALSE;
-$config['sess_table_name']		= 'ci_sessions';
-$config['sess_match_ip']		= FALSE;
-$config['sess_match_useragent']	= TRUE;
-$config['sess_time_to_update']	= 300;
+$config['sess_cookie_name'] = 'ci_session';
+$config['sess_expiration'] = 7200;
+$config['sess_expire_on_close'] = FALSE;
+$config['sess_encrypt_cookie'] = FALSE;
+$config['sess_use_database'] = FALSE;
+$config['sess_table_name'] = 'ci_sessions';
+$config['sess_match_ip'] = FALSE;
+$config['sess_match_useragent'] = TRUE;
+$config['sess_time_to_update'] = 300;
 
 /*
 |--------------------------------------------------------------------------
@@ -334,10 +331,10 @@ $config['sess_time_to_update']	= 300;
 | 'cookie_secure' =  Cookies will only be set if a secure HTTPS connection exists.
 |
 */
-$config['cookie_prefix']	= "";
-$config['cookie_domain']	= "";
-$config['cookie_path']		= "/";
-$config['cookie_secure']	= FALSE;
+$config['cookie_prefix'] = "";
+$config['cookie_domain'] = "";
+$config['cookie_path'] = "/";
+$config['cookie_secure'] = FALSE;
 
 /*
 |--------------------------------------------------------------------------

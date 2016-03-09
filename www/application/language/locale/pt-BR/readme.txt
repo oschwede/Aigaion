@@ -1,0 +1,1 @@
+This directory and its contents should be placed under <aigaionroot>/application/language/locale/
