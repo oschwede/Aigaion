@@ -106,7 +106,7 @@ $formAttributes = array('ID' => 'author_' . $author->author_id . '_edit');
                         $primaries[0] = '';
                         $prims = $this->author_db->getAllAuthors(false);
                         foreach ($prims as $prim) {
-                            if ($author->author_id != $prim->author_id) { 
+                            if ($author->author_id != $prim->author_id) {
                                 $primaries[$prim->author_id] = $prim->getName();
                             }
                         }
