@@ -10,31 +10,38 @@ class Tbswrapper{
      *
      * @var object
      */
-    private static $TBS = null;
 
     /**
      * default constructor
      *
      */
     public function __construct(){
-        if(self::$TBS == null) $this->TBS = new clsTinyButStrong();
+//        if(self::$TBS == null) Tbswrapper::getInstance()->TBS = new clsTinyButStrong();
+    }
+
+    public static function getInstance() {
+        static $TBS = null;
+        if ($TBS == null) {
+            $TBS = new clsTinyButStrong();
+        }
+        return $TBS;
     }
 
     public function tbsLoadTemplate($File, $HtmlCharSet=''){
-        return $this->TBS->LoadTemplate($File, $HtmlCharSet);
+        return Tbswrapper::getInstance()->TBS->LoadTemplate($File, $HtmlCharSet);
     }
 
     public function tbsMergeBlock($BlockName, $Source){
-        return $this->TBS->MergeBlock($BlockName, $Source);
+        return Tbswrapper::getInstance()->TBS->MergeBlock($BlockName, $Source);
     }
 
     public function tbsMergeField($BaseName, $X){
-        return $this->TBS->MergeField($BaseName, $X);
+        return Tbswrapper::getInstance()->TBS->MergeField($BaseName, $X);
     }
 
     public function tbsRender(){
-        $this->TBS->Show(TBS_NOTHING);
-        return $this->TBS->Source;
+        Tbswrapper::getInstance()->TBS->Show(TBS_NOTHING);
+        return Tbswrapper::getInstance()->TBS->Source;
     }
 
 }
