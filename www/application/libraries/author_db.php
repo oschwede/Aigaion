@@ -19,7 +19,7 @@
 class Author_db {
   
   
-  function Author_db()
+  function __construct()
   {
   }
 

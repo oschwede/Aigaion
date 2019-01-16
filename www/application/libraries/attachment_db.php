@@ -4,7 +4,7 @@ array of Attachment's. */
 class Attachment_db {
   
   
-    function Attachment_db()
+    function __construct()
     {
     }
     
