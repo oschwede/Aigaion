@@ -136,9 +136,9 @@ class Keyword_db {
     else
       $existing_id = -1;
       
-    if (sizeof($cleankeyword) < 4)
+    if (strlen($cleankeyword) < 4)
       $dist_threshold = 2;
-    else if (sizeof($cleankeyword) < 8)
+    else if (strlen($cleankeyword) < 8)
       $dist_threshold = 3;
     else
       $dist_threshold = 4;

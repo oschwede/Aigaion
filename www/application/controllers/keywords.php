@@ -60,7 +60,7 @@ class Keywords extends CI_Controller {
     if ($keyword) // user pressed show, so redirect to single keyword page
     {
       $keywordList     = $this->keyword_db->getKeywordsLike($keyword);
-      if (sizeof($keywordList) > 0)
+      if (is_array($keywordList) && sizeof($keywordList) > 0)
       {
         $this->single($keywordList[0]->keyword_id);
       }     

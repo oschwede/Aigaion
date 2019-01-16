@@ -617,7 +617,7 @@ class Authors extends CI_Controller {
     {
       //$authorList     = $this->author_db->getAuthorsLike($author_search);
       $authorList     = $this->author_db->getVisibleAuthorsLike($author_search);
-      if (sizeof($authorList) > 0)
+      if (is_array($authorList) && sizeof($authorList) > 0)
       {
         $this->show($authorList[0]->author_id);
       }     
