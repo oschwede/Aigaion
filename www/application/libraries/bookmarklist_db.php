@@ -14,9 +14,9 @@ class Bookmarklist_db {
             appendErrorMessage(__("Changing bookmarklist").": ".__("insufficient rights").".<br/>");
             return;
         }
-        $CI->db->query("INSERT IGNORE INTO ".AIGAION_DB_PREFIX."userbookmarklists (user_id,pub_id) VALUES (".$CI->db->escape($userlogin->userId()).",".$CI->db->escape($pub_id).")");
-    	if (mysql_error()) {
-    		appendErrorMessage(__("Error changing bookmarklist").".<br/>");
+        $Q = $CI->db->query("INSERT IGNORE INTO ".AIGAION_DB_PREFIX."userbookmarklists (user_id,pub_id) VALUES (".$CI->db->escape($userlogin->userId()).",".$CI->db->escape($pub_id).")");
+    	if (! $Q) {
+    		appendErrorMessage(__("Error changing bookmarklist")."<br/>");
     	}
 
     }
@@ -29,9 +29,9 @@ class Bookmarklist_db {
             appendErrorMessage(__("Changing bookmarklist").": ".__("insufficient rights").".<br/>");
             return;
         }
-        $CI->db->delete('userbookmarklists',array('user_id'=>$userlogin->userId(),'pub_id'=>$pub_id));
-    	if (mysql_error()) {
-    		appendErrorMessage(__("Error changing bookmarklist").".<br/>");
+        $Q = $CI->db->delete('userbookmarklists',array('user_id'=>$userlogin->userId(),'pub_id'=>$pub_id));
+    	if (! $Q) {
+    		appendErrorMessage(__("Error changing bookmarklist")."<br/>");
     	}
 
     }
@@ -138,8 +138,8 @@ class Bookmarklist_db {
             appendErrorMessage(__("Changing bookmarklist").": ".__("insufficient rights").".<br/>");
             return;
         }
-        $CI->db->delete('userbookmarklists',array('user_id'=>$userlogin->userId()));
-    	if (mysql_error()) {
+        $Q = $CI->db->delete('userbookmarklists',array('user_id'=>$userlogin->userId()));
+    	if (! $Q) {
     		appendErrorMessage(__("Error changing bookmarklist").".<br/>");
     	}
     }

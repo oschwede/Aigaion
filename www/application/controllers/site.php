@@ -564,8 +564,8 @@ class Site extends CI_Controller {
   		if ($complete) {
   			$this->db->query($query);
   			//appendMessage($query.'<hr>');
-  			$err = mysql_error(); 
-  			if ($err != null) appendErrorMessage($err); 
+  			//$err = mysql_error(); 
+  			//if ($err != null) appendErrorMessage($err); 
   			$query = "";
   			$complete = false;
   		}
@@ -626,10 +626,12 @@ class Site extends CI_Controller {
   		}
   
   		if ($complete) {
-  			mysql_query($query); //don't use this->db->query, as it would encapsulate everything too much, leadning to \\\'
+            // NOTE: It's unclear WHY the original author suggest NOT to use
+            // the abstraction rather than direct MySQL calls
+  			$this->db->query($query); //don't use this->db->query, as it would encapsulate everything too much, leadning to \\\'
   			//appendMessage($query.'<hr>');
-  			$err = mysql_error(); 
-  			if ($err != null) appendErrorMessage($err); 
+  			//$err = mysql_error(); 
+  			//if ($err != null) appendErrorMessage($err); 
   			$query = "";
   			$complete = false;
   		}

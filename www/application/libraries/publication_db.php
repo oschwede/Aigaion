@@ -1722,8 +1722,8 @@ class Publication_db {
         // may not be accessible for this user
         foreach ($Q->result() as $R) {
             $updatefields =  array('crossref'=>$new_bibtex_id);
-            $CI->db->update('publication', $updatefields, array('pub_id'=>$R->pub_id));
-    		if (mysql_error()) {
+            $Qupdate = $CI->db->update('publication', $updatefields, array('pub_id'=>$R->pub_id));
+    		if (! $Qupdate) {
     		    appendErrorMessage(sprintf(__("Failed to update the bibtex-id in publication %s"),$R->pub_id).".<br/>");
         	}
         }
@@ -1984,10 +1984,12 @@ class Publication_db {
         $Q = $CI->db->get_where('userpublicationmark',array('pub_id'=>$pub_id));
         $totalmark = 0;
         $count = 0;
-        foreach ($Q->result() as $R) {
-            if ($R->hasread=='y') {
-                $count++;
-                $totalmark += $R->mark;
+        if ($Q->num_rows() > 0) {
+            foreach ($Q->result() as $R) {
+                if ($R->hasread=='y' && $R->mark != '') {
+                    $count++;
+                    $totalmark += $R->mark;
+                }
             }
         }
         $newmark = 0;

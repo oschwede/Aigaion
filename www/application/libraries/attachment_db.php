@@ -147,9 +147,9 @@ class Attachment_db {
         	#if ismain, old main attachment should be un-main-ed
     		if ($attachment->ismain) {
                 $CI->db->where('pub_id', $attachment->pub_id);
-                $CI->db->update('attachments', array('ismain'=>'FALSE'));
-    			if (mysql_error()) {
-    				appendErrorMessage(__("Error un-'main'-ing other attachments").": ".mysql_error());
+                $Q = $CI->db->update('attachments', array('ismain'=>'FALSE'));
+    			if (! $Q) {
+    				appendErrorMessage(__("Error un-'main'-ing other attachments"));
     				return -1;
     			}
     		}
@@ -158,7 +158,7 @@ class Attachment_db {
     		if ($attachment->ismain) {
     		    $ismain = 'TRUE';
     		}
-    		$CI->db->insert('attachments',
+    		$Q = $CI->db->insert('attachments',
     		                array('pub_id'=>$attachment->pub_id,
     		                      'note'=>$attachment->note, 
     		                      'name'=>$realname, 
@@ -168,11 +168,11 @@ class Attachment_db {
     		                      'isremote'=>'TRUE', 
     		                      'user_id'=>$userlogin->userId())
     		                ); 
-    		if (mysql_error()) {
-    			appendErrorMessage(__("Error adding attachment").": ".mysql_error()."<br/>");
+    		if (! $Q) {
+    			appendErrorMessage(__("Error adding attachment")."<br/>");
     			return -1;
     		}        	
-            $new_id = mysql_insert_id();
+            $new_id = $CI->db->insert_id();
             $attachment->att_id = $new_id;
             $CI->accesslevels_lib->initAttachmentAccessLevels($attachment);
         	return $attachment->att_id;
@@ -229,9 +229,9 @@ class Attachment_db {
         		# if ismain, old main attachment should be un-main-ed
         		if ($attachment->ismain) {
                     $CI->db->where('pub_id', $attachment->pub_id);
-                    $CI->db->update('attachments', array('ismain'=>'FALSE'));
-        			if (mysql_error()) {
-        				appendErrorMessage(__("Error un-'main'-ing other attachments").": ".mysql_error());
+                    $Q = $CI->db->update('attachments', array('ismain'=>'FALSE'));
+        			if (! $Q) {
+        				appendErrorMessage(__("Error un-'main'-ing other attachments"));
         				return -1;
         			}
         		}
@@ -246,7 +246,7 @@ class Attachment_db {
         		if ($attachment->ismain) {
         		    $ismain = 'TRUE';
         		}
-        		$CI->db->insert('attachments',
+        		$Q = $CI->db->insert('attachments',
         		                array('pub_id'=>$attachment->pub_id,
         		                      'note'=>$attachment->note, 
         		                      'name'=>$realname, 
@@ -256,8 +256,8 @@ class Attachment_db {
         		                      'isremote'=>'FALSE', 
         		                      'user_id'=>$userlogin->userId())
     		                   ); 
-        		if (mysql_error()) {
-        			appendErrorMessage(__("Error adding attachment").": ".mysql_error()."<br/>");
+        		if (! $Q) {
+        			appendErrorMessage(__("Error adding attachment")."<br/>");
         			return -1;
         		}
         		
@@ -270,7 +270,7 @@ class Attachment_db {
                     ."<br/>");
         		}
         		
-                $new_id = mysql_insert_id();
+                $new_id = $CI->db->insert_id();
                 $attachment->att_id = $new_id;
                 $CI->accesslevels_lib->initAttachmentAccessLevels($attachment);
             	return $attachment->att_id;
@@ -316,9 +316,9 @@ class Attachment_db {
         }
 		if ($attachment->ismain) {
             $CI->db->where('pub_id', $attachment->pub_id);
-            $CI->db->update('attachments', array('ismain'=>'FALSE'));
-			if (mysql_error()) {
-				appendErrorMessage(__("Error un-'main'-ing other attachments").": ".mysql_error());
+            $Q = $CI->db->update('attachments', array('ismain'=>'FALSE'));
+			if (! $Q) {
+				appendErrorMessage(__("Error un-'main'-ing other attachments"));
 				return -1;
 			}
 		}

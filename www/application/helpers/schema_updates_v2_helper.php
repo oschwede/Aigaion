@@ -38,18 +38,20 @@
      * BEGIN schema updates
      */
     
-    mysql_query("ALTER TABLE `". AIGAION_DB_PREFIX ."author`
+    $CI = &get_instance();
+
+    $Q = $CI->db->query("ALTER TABLE `". AIGAION_DB_PREFIX ."author`
     	DROP PRIMARY KEY,
     	ADD PRIMARY KEY (`author_id`) USING HASH,
     	ADD INDEX `author_cleanname` (`cleanname`) USING BTREE,
     	ADD INDEX `author_synonym_of` (`synonym_of`) USING HASH;");
-    
-    if ($err = mysql_error()) {
+
+    if (! $Q) {
       log_message('error', "could not add author indexes ($err)");
       return False;
     }
     
-    mysql_query("ALTER TABLE `". AIGAION_DB_PREFIX ."publication`
+    $Q = $CI->db->query("ALTER TABLE `". AIGAION_DB_PREFIX ."publication`
 			DROP PRIMARY KEY,
 			ADD PRIMARY KEY (`pub_id`) USING HASH,
     	ADD INDEX `publication_derived_read_access_level` (`derived_read_access_level`) USING HASH,
@@ -59,26 +61,26 @@
     	ADD INDEX `publication_pub_type` (`pub_type`) USING HASH,
     	ADD INDEX `publication_cleantitle` (`cleantitle`) USING BTREE;");
     
-    if ($err = mysql_error()) {
+    if (! $Q) {
       log_message('error', "could not add publication indexes ($err)");
       return False;
     }
     
-    mysql_query("ALTER TABLE `". AIGAION_DB_PREFIX ."publicationauthorlink`
+    $Q = $CI->db->query("ALTER TABLE `". AIGAION_DB_PREFIX ."publicationauthorlink`
     	DROP INDEX `pub_id`,
       DROP PRIMARY KEY,
       ADD PRIMARY KEY (`pub_id`, `author_id`, `is_editor`) USING HASH,
       ADD INDEX `pal_author_id` (`author_id`) USING HASH;");
     
-    if ($err = mysql_error()) {
+    if (! $Q) {
       log_message('error', "could not add publicationauthorlink indexes ($err)");
       return False;
     }
     
-    mysql_query("ALTER TABLE `". AIGAION_DB_PREFIX ."userpublicationmark`
+    $Q = $CI->db->query("ALTER TABLE `". AIGAION_DB_PREFIX ."userpublicationmark`
 			ADD INDEX `pub_id_mark` (`pub_id`, `mark`) USING HASH;");
     
-    if ($err = mysql_error()) {
+    if (! $Q) {
       log_message('error', "could not add userpublicationmark indexes ($err)");
       return False;
     }
@@ -136,10 +138,10 @@ Customizable publication summary
         }
              
         //insert type_id column
-        mysql_query("ALTER TABLE `".AIGAION_DB_PREFIX."publication` 
+        $Q = $CI->db->query("ALTER TABLE `".AIGAION_DB_PREFIX."publication` 
                       ADD `coverimage` varchar(255) NOT NULL default '';");
 
-        if (mysql_error()) 
+        if (! $Q)
             return False;
         
         return setVersion('V2.22');
@@ -158,28 +160,28 @@ Customizable publication summary
         }
              
         //add customfieldsinfo table
-        mysql_query("CREATE TABLE `".AIGAION_DB_PREFIX."customfieldsinfo` 
+        $Q = $CI->db->query("CREATE TABLE `".AIGAION_DB_PREFIX."customfieldsinfo` 
                         (  `type_id` int(10) unsigned NOT NULL auto_increment,
                         `type` enum('publication','author','topic') NOT NULL default 'publication',
                         `order` int(10) unsigned NOT NULL default '0',
                         `name` VARCHAR(255) NOT NULL default '',
                         PRIMARY KEY  (`type_id`)) ENGINE=MyISAM CHARACTER SET utf8;");
         
-        if (mysql_error()) 
+        if (! $Q) 
             return False;
             
         //drop "type" column of customfields table since it is successed by customfiledsinfo table
-        mysql_query("ALTER TABLE `".AIGAION_DB_PREFIX."customfields` 
+        $Q = $CI->db->query("ALTER TABLE `".AIGAION_DB_PREFIX."customfields` 
                       DROP COLUMN `type`;");
                       
-        if (mysql_error()) 
+        if (! $Q) 
             return False;
 
         //insert type_id column
-        mysql_query("ALTER TABLE `".AIGAION_DB_PREFIX."customfields` 
+        $Q = $CI->db->query("ALTER TABLE `".AIGAION_DB_PREFIX."customfields` 
                       ADD `type_id` int(10) unsigned NOT NULL AFTER `entry_id`;");
 
-        if (mysql_error()) 
+        if (! $Q) 
             return False;
         
         return setVersion('V2.21');
@@ -200,27 +202,27 @@ Customizable publication summary
         }
              
         //insert publicationstatus field to the publiation table
-        mysql_query("ALTER TABLE `".AIGAION_DB_PREFIX."publication` 
+        $Q = $CI->db->query("ALTER TABLE `".AIGAION_DB_PREFIX."publication` 
                       ADD COLUMN `status` varchar(255) NOT NULL default '';");
 
-        if (mysql_error()) 
+        if (! $Q) 
             return False;
 
         //add customfields table
-        mysql_query("CREATE TABLE `".AIGAION_DB_PREFIX."customfields` 
+        $Q = $CI->db->query("CREATE TABLE `".AIGAION_DB_PREFIX."customfields` 
                         (  `entry_id` int(10) unsigned NOT NULL auto_increment,  
                         `type` enum('publication','author','topic') NOT NULL default 'publication', 
                         `object_id` int(10) unsigned NOT NULL,
                         `value` TEXT NOT NULL,  PRIMARY KEY  (`entry_id`)) ENGINE=MyISAM CHARACTER SET utf8;");
         
-        if (mysql_error()) 
+        if (! $Q) 
             return False;
             
         //add "synonym of" column
-        mysql_query("ALTER TABLE `".AIGAION_DB_PREFIX."author` 
+        $Q = $CI->db->query("ALTER TABLE `".AIGAION_DB_PREFIX."author` 
                       ADD COLUMN `synonym_of` int(10) unsigned NOT NULL default '0';");
 
-        if (mysql_error()) 
+        if (! $Q) 
             return False;
         
         return setVersion('V2.20');
@@ -299,24 +301,22 @@ Aigaion now runs on CodeIgniter version 1.7
             return False;
         }
              
-        mysql_query("ALTER TABLE `".AIGAION_DB_PREFIX."keywords` 
+        $Q = $CI->db->query("ALTER TABLE `".AIGAION_DB_PREFIX."keywords` 
                       ADD COLUMN `cleankeyword` 
                                  TEXT NOT NULL;");
 
         
-        if (mysql_error()) 
+        if (! $Q) 
             return False;
 
         $Q = $CI->db->get('keywords');
         $CI->load->helper('utf8_to_ascii');
         foreach ($Q->result() as $row) { 
             $cleankeyword =  utf8_to_ascii($row->keyword);
-            $CI->db->update('keywords',array('cleankeyword'=>$cleankeyword),array('keyword_id'=>$row->keyword_id));
+            $Q = $CI->db->update('keywords',array('cleankeyword'=>$cleankeyword),array('keyword_id'=>$row->keyword_id));
+            if (! $Q) return False;
         }
         
-        
-        if (mysql_error()) 
-            return False;
         
         return setVersion('V2.18');
     }
@@ -377,13 +377,13 @@ Aigaion now runs on CodeIgniter version 1.7
         }
        
         //extend fields in user table
-        $res = mysql_query("ALTER TABLE `".AIGAION_DB_PREFIX."topics` 
+        $Q = $CI->db->query("ALTER TABLE `".AIGAION_DB_PREFIX."topics` 
                                   CHANGE `name` `name`  varchar(255);");
-        $res = mysql_query("ALTER TABLE `".AIGAION_DB_PREFIX."topics` 
+        $Q = $CI->db->query("ALTER TABLE `".AIGAION_DB_PREFIX."topics` 
                                   CHANGE `cleanname` `cleanname`  varchar(255);");
                                   
        
-        if (mysql_error()) 
+        if (! $Q) 
             return False;
         
         return setVersion('V2.15');
@@ -456,24 +456,45 @@ Aigaion now runs on CodeIgniter version 1.7
             return False;
         }
          
-        $CI->db->update('publication',array('month'=>''),array('month'=>'0'));
-        $CI->db->update('publication',array('month'=>'"jan"'),array('month'=>'1'));
-        $CI->db->update('publication',array('month'=>'"feb"'),array('month'=>'2'));
-        $CI->db->update('publication',array('month'=>'"mar"'),array('month'=>'3'));
-        $CI->db->update('publication',array('month'=>'"apr"'),array('month'=>'4'));
-        $CI->db->update('publication',array('month'=>'"may"'),array('month'=>'5'));
-        $CI->db->update('publication',array('month'=>'"jun"'),array('month'=>'6'));
-        $CI->db->update('publication',array('month'=>'"jul"'),array('month'=>'7'));
-        $CI->db->update('publication',array('month'=>'"aug"'),array('month'=>'8'));
-        $CI->db->update('publication',array('month'=>'"sep"'),array('month'=>'9'));
-        $CI->db->update('publication',array('month'=>'"oct"'),array('month'=>'10'));
-        $CI->db->update('publication',array('month'=>'"nov"'),array('month'=>'11'));
-        $CI->db->update('publication',array('month'=>'"dec"'),array('month'=>'12'));
-            
-            
-        if (mysql_error()) 
-            return False;
-        
+        $Q = $CI->db->update('publication',array('month'=>''),array('month'=>'0'));
+        if (! $Q) return False;
+
+        $Q = $CI->db->update('publication',array('month'=>'"jan"'),array('month'=>'1'));
+        if (! $Q) return False;
+
+        $Q = $CI->db->update('publication',array('month'=>'"feb"'),array('month'=>'2'));
+        if (! $Q) return False;
+
+        $Q = $CI->db->update('publication',array('month'=>'"mar"'),array('month'=>'3'));
+        if (! $Q) return False;
+
+        $Q = $CI->db->update('publication',array('month'=>'"apr"'),array('month'=>'4'));
+        if (! $Q) return False;
+
+        $Q = $CI->db->update('publication',array('month'=>'"may"'),array('month'=>'5'));
+        if (! $Q) return False;
+
+        $Q = $CI->db->update('publication',array('month'=>'"jun"'),array('month'=>'6'));
+        if (! $Q) return False;
+
+        $Q = $CI->db->update('publication',array('month'=>'"jul"'),array('month'=>'7'));
+        if (! $Q) return False;
+
+        $Q = $CI->db->update('publication',array('month'=>'"aug"'),array('month'=>'8'));
+        if (! $Q) return False;
+
+        $Q = $CI->db->update('publication',array('month'=>'"sep"'),array('month'=>'9'));
+        if (! $Q) return False;
+
+        $Q = $CI->db->update('publication',array('month'=>'"oct"'),array('month'=>'10'));
+        if (! $Q) return False;
+
+        $Q = $CI->db->update('publication',array('month'=>'"nov"'),array('month'=>'11'));
+        if (! $Q) return False;
+
+        $Q = $CI->db->update('publication',array('month'=>'"dec"'),array('month'=>'12'));
+        if (! $Q) return False;
+
         return setVersion('V2.12');
     }
     
@@ -489,20 +510,25 @@ Aigaion now runs on CodeIgniter version 1.7
             return False;
         }
              
-        $res = mysql_query("ALTER TABLE `".AIGAION_DB_PREFIX."publication` 
+        $Q = $CI->db->query("ALTER TABLE `".AIGAION_DB_PREFIX."publication` 
                                   CHANGE `year` `year`  varchar(127) NOT NULL DEFAULT '';");
-        $res = mysql_query("ALTER TABLE `".AIGAION_DB_PREFIX."publication` 
+        if (! $Q) return False;
+
+        $Q = $CI->db->query("ALTER TABLE `".AIGAION_DB_PREFIX."publication` 
                                   CHANGE `actualyear` `actualyear`  varchar(127) NOT NULL DEFAULT '';");
-        $res = mysql_query("ALTER TABLE `".AIGAION_DB_PREFIX."publication` 
+        if (! $Q) return False;
+
+        $Q = $CI->db->query("ALTER TABLE `".AIGAION_DB_PREFIX."publication` 
                                   CHANGE `series` `series`  varchar(127) NOT NULL DEFAULT '';");
-        $res = mysql_query("ALTER TABLE `".AIGAION_DB_PREFIX."publication` 
+        if (! $Q) return False;
+
+        $Q = $CI->db->query("ALTER TABLE `".AIGAION_DB_PREFIX."publication` 
                                   CHANGE `volume` `volume`  varchar(127) NOT NULL DEFAULT '';");
-        $res = mysql_query("ALTER TABLE `".AIGAION_DB_PREFIX."publication` 
+        if (! $Q) return False;
+
+        $Q = $CI->db->query("ALTER TABLE `".AIGAION_DB_PREFIX."publication` 
                                   CHANGE `chapter` `chapter`  varchar(127) NOT NULL DEFAULT '';");
-        
-        if (mysql_error()) 
-            return False;
-        
+        if (! $Q) return False;
         return setVersion('V2.11');
     }
     
@@ -518,13 +544,13 @@ Aigaion now runs on CodeIgniter version 1.7
             return False;
         }
              
-        mysql_query("ALTER TABLE `".AIGAION_DB_PREFIX."users` 
+        $Q = $CI->db->query("ALTER TABLE `".AIGAION_DB_PREFIX."users` 
                       ADD COLUMN `similar_author_test` 
                                  VARCHAR(20) NOT NULL DEFAULT 'default';");
-        $CI->db->insert('config',array('setting'=>'DEFAULTPREF_SIMILAR_AUTHOR_TEST','value'=>'c'));
-        
-        if (mysql_error()) 
-            return False;
+        if (! $Q) return False;
+
+        $Q = $CI->db->insert('config',array('setting'=>'DEFAULTPREF_SIMILAR_AUTHOR_TEST','value'=>'c'));
+        if (! $Q) return False;
         
         return setVersion('V2.10');
     }
@@ -543,13 +569,13 @@ Aigaion now runs on CodeIgniter version 1.7
         }
        
         //add 'jr' column for authors
-        $res = mysql_query("INSERT INTO `".AIGAION_DB_PREFIX."availablerights` 
+        $Q = $CI->db->query("INSERT INTO `".AIGAION_DB_PREFIX."availablerights` 
                                         (`name`,`description`) 
                                  VALUES ('export_email','export publications through email'),
                                         ('request_copies','request copies of a publication from the author');");
                                   
        
-        if (mysql_error()) 
+        if (! $Q) 
             return False;
         
         return setVersion('V2.9');
@@ -568,11 +594,11 @@ Aigaion now runs on CodeIgniter version 1.7
         }
        
         //add 'jr' column for authors
-        $res = mysql_query("ALTER TABLE `".AIGAION_DB_PREFIX."author` 
+        $Q = $CI->db->query("ALTER TABLE `".AIGAION_DB_PREFIX."author` 
                                   ADD `jr` varchar(255) default '';");
                                   
        
-        if (mysql_error()) 
+        if (! $Q) 
             return False;
         
         return setVersion('V2.8');
@@ -591,15 +617,17 @@ Aigaion now runs on CodeIgniter version 1.7
         }
        
         //extend fields in user table
-        $res = mysql_query("ALTER TABLE `".AIGAION_DB_PREFIX."users` 
+        $Q = $CI->db->query("ALTER TABLE `".AIGAION_DB_PREFIX."users` 
                                   CHANGE `firstname` `firstname`  varchar(255);");
-        $res = mysql_query("ALTER TABLE `".AIGAION_DB_PREFIX."users` 
+        if (! $Q) return False;
+
+        $Q = $CI->db->query("ALTER TABLE `".AIGAION_DB_PREFIX."users` 
                                   CHANGE `surname` `surname`  varchar(255);");
-        $res = mysql_query("ALTER TABLE `".AIGAION_DB_PREFIX."users` 
+        $Q = $CI->db->query("ALTER TABLE `".AIGAION_DB_PREFIX."users` 
                                   CHANGE `email` `email`  varchar(255);");
                                   
        
-        if (mysql_error()) 
+        if (! $Q) 
             return False;
         
         return setVersion('V2.7');
@@ -619,10 +647,11 @@ Aigaion now runs on CodeIgniter version 1.7
         }
        
         //add 'pages' column.
-        $res = mysql_query("ALTER TABLE `".AIGAION_DB_PREFIX."publication` 
+        $Q = $CI->db->query("ALTER TABLE `".AIGAION_DB_PREFIX."publication` 
                                   ADD `pages` VARCHAR(255)
                                   NOT NULL 
                                   default '';");
+        if (! $Q) return False;
                                   
         $Q = $CI->db->get('publication');
         
@@ -640,12 +669,10 @@ Aigaion now runs on CodeIgniter version 1.7
             	}
             }
             $R->pages = $pages;
-            $CI->db->update('publication',$R,array('pub_id'=>$R->pub_id));
+            $err =  $CI->db->update('publication',$R,array('pub_id'=>$R->pub_id));
+            if (! $Q) return False;
             
         }
-        
-        if (mysql_error()) 
-            return False;
         
         return setVersion('V2.6');
     }
@@ -664,17 +691,17 @@ Aigaion now runs on CodeIgniter version 1.7
             return False;
         }
         //authordisplaystyle gets extra option 'default' 
-        $res = mysql_query("ALTER TABLE `".AIGAION_DB_PREFIX."users` 
+        $Q = $CI->db->query("ALTER TABLE `".AIGAION_DB_PREFIX."users` 
                                   CHANGE `authordisplaystyle` `authordisplaystyle`  varchar(255) NOT NULL default 'vlf'");
                                   //note: can it be that MODIFY COLUMN needs to be CHANGE for some MYSQL versions? :(
 
         //account types is extended with 'external'
-        $res = mysql_query("ALTER TABLE `".AIGAION_DB_PREFIX."users` 
+        $Q = $CI->db->query("ALTER TABLE `".AIGAION_DB_PREFIX."users` 
                                   CHANGE `type` `type` enum('group','anon','normal','external') NOT NULL default 'normal'");
                                   //note: can it be that MODIFY COLUMN needs to be CHANGE for some MYSQL versions? :(
 
         //password_invalidated (TRUE|FALSE) column for user table
-        $res = mysql_query("ALTER TABLE `".AIGAION_DB_PREFIX."users` 
+        $Q = $CI->db->query("ALTER TABLE `".AIGAION_DB_PREFIX."users` 
                                   ADD `password_invalidated` enum('TRUE','FALSE') 
                                   NOT NULL 
                                   default 'FALSE' 
@@ -682,29 +709,33 @@ Aigaion now runs on CodeIgniter version 1.7
        
         //if aigaion was configured to use external login, set all 'normal' accounts to be 'external'
         if (getConfigurationSetting('USE_EXTERNAL_LOGIN')=='TRUE') {
-          $CI->db->update('users', array('type'=>'external'),array('type'=>'normal'));
+          $Q = $CI->db->update('users', array('type'=>'external'),array('type'=>'normal'));
+          if (! $Q) return False;
         }
         
         //all anonymous accounts are 'password_invalidated'
-        $CI->db->update('users', array('password_invalidated'=>'TRUE'),array('type'=>'anon'));
+        $Q = $CI->db->update('users', array('password_invalidated'=>'TRUE'),array('type'=>'anon'));
+        if (! $Q) return False;
         
         //change names of some config settings. Set setting name to X where setting name was Y
         //$CI->db->update('config', array('setting'=>'X'),array('setting'=>'Y'));
-        $CI->db->update('config', array('setting'=>'LOGIN_ENABLE_ANON'),array('setting'=>'ENABLE_ANON_ACCESS'));
-        $CI->db->update('config', array('setting'=>'LOGIN_DEFAULT_ANON'),array('setting'=>'ANONYMOUS_USER'));
-        $CI->db->update('config', array('setting'=>'LOGIN_CREATE_MISSING_USER'),array('setting'=>'CREATE_MISSING_USERS'));
+        $Q = $CI->db->update('config', array('setting'=>'LOGIN_ENABLE_ANON'),array('setting'=>'ENABLE_ANON_ACCESS'));
+        if (! $Q) return False;
+        $Q = $CI->db->update('config', array('setting'=>'LOGIN_DEFAULT_ANON'),array('setting'=>'ANONYMOUS_USER'));
+        if (! $Q) return False;
+        $Q = $CI->db->update('config', array('setting'=>'LOGIN_CREATE_MISSING_USER'),array('setting'=>'CREATE_MISSING_USERS'));
+        if (! $Q) return False;
 
         //new config settings introduced 
-        $CI->db->insert('config',array('setting'=>'LOGIN_ENABLE_DELEGATED_LOGIN','value'=>'FALSE'));
-        $CI->db->insert('config',array('setting'=>'LOGIN_DELEGATES','value'=>''));
-        $CI->db->insert('config',array('setting'=>'LOGIN_DISABLE_INTERNAL_LOGIN','value'=>'FALSE'));
-        $CI->db->insert('config',array('setting'=>'LOGIN_MANAGE_GROUPS_THROUGH_EXTERNAL_MODULE','value'=>'FALSE'));
+        $Q = $CI->db->insert('config',array('setting'=>'LOGIN_ENABLE_DELEGATED_LOGIN','value'=>'FALSE'));
+        if (! $Q) return False;
+        $Q = $CI->db->insert('config',array('setting'=>'LOGIN_DELEGATES','value'=>''));
+        if (! $Q) return False;
+        $Q = $CI->db->insert('config',array('setting'=>'LOGIN_DISABLE_INTERNAL_LOGIN','value'=>'FALSE'));
+        if (! $Q) return False;
+        $Q = $CI->db->insert('config',array('setting'=>'LOGIN_MANAGE_GROUPS_THROUGH_EXTERNAL_MODULE','value'=>'FALSE'));
+        if (! $Q) return False;
 
-        
-        
-        if (mysql_error()) 
-            return False;
-        
         return setVersion('V2.5');
     }
 
@@ -720,13 +751,16 @@ Aigaion now runs on CodeIgniter version 1.7
         if (!updateSchemaV2_3()) { //FIRST CHECK OLDER VERSION
             return False;
         }
-        $CI->db->insert('config',array('setting'=>'DEFAULTPREF_THEME','value'=>'default'));
-        $CI->db->insert('config',array('setting'=>'DEFAULTPREF_LANGUAGE','value'=>'english'));
-        $CI->db->insert('config',array('setting'=>'DEFAULTPREF_SUMMARYSTYLE','value'=>'author'));
-        $CI->db->insert('config',array('setting'=>'DEFAULTPREF_AUTHORDISPLAYSTYLE','value'=>'fvl'));
-        $CI->db->insert('config',array('setting'=>'DEFAULTPREF_LISTSTYLE','value'=>'50'));
-        if (mysql_error()) 
-            return False;
+        $Q = $CI->db->insert('config',array('setting'=>'DEFAULTPREF_THEME','value'=>'default'));
+        if (! $Q) return False;
+        $Q = $CI->db->insert('config',array('setting'=>'DEFAULTPREF_LANGUAGE','value'=>'english'));
+        if (! $Q) return False;
+        $Q = $CI->db->insert('config',array('setting'=>'DEFAULTPREF_SUMMARYSTYLE','value'=>'author'));
+        if (! $Q) return False;
+        $Q = $CI->db->insert('config',array('setting'=>'DEFAULTPREF_AUTHORDISPLAYSTYLE','value'=>'fvl'));
+        if (! $Q) return False;
+        $Q = $CI->db->insert('config',array('setting'=>'DEFAULTPREF_LISTSTYLE','value'=>'50'));
+        if (! $Q) return False;
         
         return setVersion('V2.4');
     }
@@ -742,8 +776,8 @@ Aigaion now runs on CodeIgniter version 1.7
             return False;
         }
         //ATTEMPT TO RUN DATABASE UPDATING CODE FOR THIS VERSION... if fail, rollback?
-        mysql_query("ALTER TABLE `".AIGAION_DB_PREFIX."users` ADD COLUMN `language` VARCHAR(20) NOT NULL DEFAULT 'english';");
-        if (mysql_error()) 
+        $Q = $CI->db->query("ALTER TABLE `".AIGAION_DB_PREFIX."users` ADD COLUMN `language` VARCHAR(20) NOT NULL DEFAULT 'english';");
+        if (! $Q) 
             return False;
         
         return setVersion('V2.3');

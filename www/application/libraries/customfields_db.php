@@ -119,7 +119,7 @@ class Customfields_db {
                           WHERE ".AIGAION_DB_PREFIX."customfieldsinfo.type = ".$CI->db->escape($type)."
                             AND ".AIGAION_DB_PREFIX."customfields.object_id = ".$CI->db->escape($object_id));
                             
-    return mysql_error();
+    return $Q;
   }
   
   function getAllFieldsInfo() {

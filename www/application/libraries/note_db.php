@@ -206,8 +206,8 @@ class Note_db {
         		  $text = preg_replace($bibtexidlinks[$pub_id][1], $new_bibtex_id, $R->text);
               //update is done here, instead of using the update function, as some of the affected notes may not be accessible for this user
               $updatefields =  array('text'=>$text);
-              $CI->db->update('notes',$updatefields,array('note_id'=>$R->note_id));
-      		    if (mysql_error()) {
+              $updateQ = $CI->db->update('notes',$updatefields,array('note_id'=>$R->note_id));
+      		    if (! $updateQ) {
       		      appendErrorMessage(sprintf(__("Failed to update the BibTeX-id in note %s."),$R->note_id)."<br/>");
           	  }
             }
