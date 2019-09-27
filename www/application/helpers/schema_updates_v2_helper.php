@@ -769,6 +769,7 @@ Aigaion now runs on CodeIgniter version 1.7
     Note: add language preference
     */
     function updateSchemaV2_3() {
+        $CI = &get_instance();
         if (checkVersion('V2.3', true)) { // silent check
             return True;
         }
