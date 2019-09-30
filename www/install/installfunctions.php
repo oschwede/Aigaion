@@ -34,11 +34,12 @@ function siteIsConfigured() {
 }
 
 function _query($q) {
-    $res = mysql_query($q);
-    if (mysql_error())
+    global $theDatabase;
+    $res = mysqli_query($theDatabase,$q);
+    if (mysqli_error($theDatabase))
     {
       $errormessage  = "An error occured while executing a query on the database, please report this error and the query to your administrator or the aigaion development team.<br/>\n";
-      $errormessage .= "MySQL Error: ".mysql_error()."<br/>\n";
+      $errormessage .= "MySQL Error: ".mysqli_error($theDatabase)."<br/>\n";
       $errormessage .= "Query: ".$q;
       die($errormessage);
     }

@@ -2,17 +2,19 @@
 
 function installNewDatabase($AIGAION2_DB_HOST, $AIGAION2_DB_USER, $AIGAION2_DB_PWD, $AIGAION2_DB_NAME, $AIGAION2_DB_PREFIX)
 {
+	global $theDatabase;
         #
         # connect to aigaion 2 database, execute install query
         #
         
         //Connect to the database, feedback html when an error occurs.
-        $theDatabase = mysql_connect($AIGAION2_DB_HOST,
+        $theDatabase = mysqli_connect($AIGAION2_DB_HOST,
                                      $AIGAION2_DB_USER,
-                                     $AIGAION2_DB_PWD);
+									 $AIGAION2_DB_PWD, 
+									 $AIGAION2_DB_NAME);
         if ($theDatabase)
         {
-            if (!mysql_select_db($AIGAION2_DB_NAME)) {
+            if (!mysqli_select_db($theDatabase, $AIGAION2_DB_NAME)) {
                 die("Aigaion 2.0 migration script: database connection to new database failed<br>
                 Error: Aigaion did not succeed in selecting the correct 
                 database. Please check the database settings in your migration script.");
@@ -146,6 +148,7 @@ function installNewDatabase($AIGAION2_DB_HOST, $AIGAION2_DB_USER, $AIGAION2_DB_P
 }
 
 function migrateOldDatabase($AIGAION1_DB_HOST, $AIGAION1_DB_USER, $AIGAION1_DB_PWD, $AIGAION1_DB_NAME, $AIGAION2_DB_HOST, $AIGAION2_DB_USER, $AIGAION2_DB_PWD, $AIGAION2_DB_NAME, $AIGAION2_DB_PREFIX) {
+  global $theDatabase;
   
   include_once('migration/UTF8.php');
   
@@ -158,12 +161,13 @@ function migrateOldDatabase($AIGAION1_DB_HOST, $AIGAION1_DB_USER, $AIGAION1_DB_P
 	#
 
 	//Connect to the database, feedback html when an error occurs.
-	$theDatabase = mysql_connect(
+	$theDatabase = mysqli_connect(
 			$AIGAION1_DB_HOST,
 			$AIGAION1_DB_USER,
-			$AIGAION1_DB_PWD);
+			$AIGAION1_DB_PWD,
+			$AIGAION1_DB_NAME);
 	if ($theDatabase) {
-		if (!mysql_select_db($AIGAION1_DB_NAME)) {
+		if (!mysqli_select_db($theDatabase, $AIGAION1_DB_NAME)) {
 				die("<div class='errormessage'>Aigaion 2.0 migration script: database connection to version 1 database failed<br>
 				Error: Aigaion did not succeed in selecting the correct
 				database. Please check the database settings in your migration script.</div>");
@@ -179,19 +183,19 @@ function migrateOldDatabase($AIGAION1_DB_HOST, $AIGAION1_DB_USER, $AIGAION1_DB_P
 
 	$databaseTables = array();
 	$Q = _query("SHOW TABLES FROM ".$AIGAION1_DB_NAME);
-    if (!$Q || (mysql_num_rows($Q) == 0)) {
+    if (!$Q || (mysqli_num_rows($Q) == 0)) {
         $Q = _query("SHOW TABLES");
     } 
-    if (mysql_num_rows($Q) > 0) {
-		while ($R = mysql_fetch_array($Q)) {
+    if (mysqli_num_rows($Q) > 0) {
+		while ($R = mysqli_fetch_array($Q)) {
 			$databaseTables[] = $R['Tables_in_'.$AIGAION1_DB_NAME];
 		}
 	}
 
 	foreach ($databaseTables as $table) {
 		$Q = _query("SHOW CREATE TABLE ".$AIGAION1_DB_NAME.".".$table);
-		if (mysql_num_rows($Q) > 0) {
-			$R = mysql_fetch_row($Q);
+		if (mysqli_num_rows($Q) > 0) {
+			$R = mysqli_fetch_row($Q);
 			$create_statement = $R[1].";";
 			$len_create_table = strlen("CREATE TABLE '".$table."'");// + 5; //just to be sure some extra length
 			$create_statement_first = substr($create_statement, 0, $len_create_table);
@@ -202,43 +206,44 @@ function migrateOldDatabase($AIGAION1_DB_HOST, $AIGAION1_DB_USER, $AIGAION1_DB_P
 		}
 
 		$Q = _query("SELECT * FROM ".$AIGAION1_DB_NAME.".".$table);
-		if (mysql_num_rows($Q) == 0)
+		if (mysqli_num_rows($Q) == 0)
 			continue;
 
 		$fields 		= array();
-		$num_fields	= mysql_num_fields($Q);
+		$num_fields	= mysqli_num_fields($Q);
 		for ($i = 0; $i < $num_fields; $i++) {
-			$fields[] = mysql_fetch_field($Q, $i);
+			$fields[] = mysqli_fetch_field($Q, $i);
 		}
 
 		$values = array();
 		$insertTo = "INSERT INTO ".$AIGAION2_DB_PREFIX.$table." VALUES ";
-		while ($R = mysql_fetch_row($Q)) {
+		while ($R = mysqli_fetch_row($Q)) {
 			for ($i = 0; $i < $num_fields; $i++) {
 				if (!isset($R[$i]) || is_null($R[$i])) {
 					$values[]     = 'NULL';
 				} else {
-					$values[] = "'".mysql_real_escape_string($R[$i])."'";
+					$values[] = "'".mysqli_real_escape_string($R[$i])."'";
 				}
 			}
 			$migrate_queries[] = $insertTo."(".implode(", ", $values).");";
 			unset($values);
 		}
 	}
-	mysql_close();
+	mysqli_close();
 
 	#
 	# connect to aigaion 2 database, execute migration query
 	#
 
 	//Connect to the database, feedback html when an error occurs.
-	$theDatabase = mysql_connect(
+	$theDatabase = mysqlii_connect(
 			$AIGAION2_DB_HOST,
 			$AIGAION2_DB_USER,
-			$AIGAION2_DB_PWD);
+			$AIGAION2_DB_PWD,
+			$AIGAION2_DB_NAME);
 	if ($theDatabase)
 	{
-			if (!mysql_select_db($AIGAION2_DB_NAME)) {
+			if (!mysqli_select_db($theDatabase, $AIGAION2_DB_NAME)) {
 					die("Aigaion 2.0 migration script: database connection to new database failed<br>
 					Error: Aigaion did not succeed in selecting the correct
 					database. Please check the database settings in your migration script.");
@@ -253,9 +258,9 @@ function migrateOldDatabase($AIGAION1_DB_HOST, $AIGAION1_DB_USER, $AIGAION1_DB_P
 	$utf8 = new UTF8();
 	foreach ($migrate_queries as $query) {
 			_query($utf8->smartUtf8_encode($query)); //DR: I use the utf8 smart encode here because some Aigaion 1.x installations did not convert latin1 chars on import; in those cases that data should be converted to utf8...
-			if (mysql_error()) {
+			if (mysqli_error()) {
 					$success = false;
-					echo mysql_error().'<br/>';
+					echo mysqli_error().'<br/>';
 			}
  	}
 
@@ -361,7 +366,7 @@ function migrateOldDatabase($AIGAION1_DB_HOST, $AIGAION1_DB_USER, $AIGAION1_DB_P
 
 	$keyword_array = array();
 	if ($res) {
-			while ($row = mysql_fetch_array($res) ) {
+			while ($row = mysqli_fetch_array($res) ) {
 				$keywords = preg_replace(
 							'/ *([^,;]+)/',
 							"###\\1",
@@ -379,19 +384,19 @@ function migrateOldDatabase($AIGAION1_DB_HOST, $AIGAION1_DB_USER, $AIGAION1_DB_P
 			}
 
 			foreach ($keyword_array as $entry) {
-				$res = _query("SELECT keyword_id FROM ".$AIGAION2_DB_PREFIX."keywords WHERE keyword='".mysql_real_escape_string($entry['keyword'])."'");
-				if (mysql_num_rows($res) > 0) {
-					while ($row = mysql_fetch_array($res)) {
+				$res = _query("SELECT keyword_id FROM ".$AIGAION2_DB_PREFIX."keywords WHERE keyword='".mysqli_real_escape_string($entry['keyword'])."'");
+				if (mysqli_num_rows($res) > 0) {
+					while ($row = mysqli_fetch_array($res)) {
 						$keyword_id = $row['keyword_id'];
 					}
 				} else {
-					$res = _query("INSERT IGNORE INTO ".$AIGAION2_DB_PREFIX."keywords (keyword) VALUES ('".mysql_real_escape_string($entry['keyword'])."')");
-					$keyword_id = mysql_insert_id();
+					$res = _query("INSERT IGNORE INTO ".$AIGAION2_DB_PREFIX."keywords (keyword) VALUES ('".mysqli_real_escape_string($entry['keyword'])."')");
+					$keyword_id = mysqli_insert_id();
 				}
 
 				$res = _query("INSERT IGNORE INTO ".$AIGAION2_DB_PREFIX."publicationkeywordlink (pub_id, keyword_id) VALUES (".$entry['pub_id'].", ".$keyword_id.");");
 
-				if (mysql_affected_rows() == 1) {
+				if (mysqli_affected_rows() == 1) {
 					//echo "Insert pub_id ".$entry['pub_id'].": keyword_id ".$keyword_id."<br/>";
 				}
 			}
@@ -551,20 +556,20 @@ function migrateOldDatabase($AIGAION1_DB_HOST, $AIGAION1_DB_USER, $AIGAION1_DB_P
 		//author->surname, von, firstname, institute
 	$res = _query("SELECT * FROM ".$AIGAION2_DB_PREFIX."author");
 	if ($res) {
-		while ($row = mysql_fetch_array($res)) {
+		while ($row = mysqli_fetch_array($res)) {
 			_query("UPDATE ".$AIGAION2_DB_PREFIX."author SET ".
-					"surname='".  	mysql_real_escape_string(bibCharsToUtf8FromString($row['surname'])).
-					"', von='".		mysql_real_escape_string(bibCharsToUtf8FromString($row['von'])).
-					"', firstname='".	mysql_real_escape_string(bibCharsToUtf8FromString($row['firstname'])).
-					"', institute='". 	mysql_real_escape_string(bibCharsToUtf8FromString($row['institute'])).
+					"surname='".  	mysqli_real_escape_string(bibCharsToUtf8FromString($row['surname'])).
+					"', von='".		mysqli_real_escape_string(bibCharsToUtf8FromString($row['von'])).
+					"', firstname='".	mysqli_real_escape_string(bibCharsToUtf8FromString($row['firstname'])).
+					"', institute='". 	mysqli_real_escape_string(bibCharsToUtf8FromString($row['institute'])).
 					"' WHERE author_id='{$row['author_id']}' ");
 		}
 	}
 		//keywords->keyword
 	$res = _query("SELECT * FROM ".$AIGAION2_DB_PREFIX."keywords");
 	if ($res) {
-		while ($row = mysql_fetch_array($res)) {
-			_query("UPDATE ".$AIGAION2_DB_PREFIX."keywords SET keyword='".mysql_real_escape_string(bibCharsToUtf8FromString($row['keyword'])).
+		while ($row = mysqli_fetch_array($res)) {
+			_query("UPDATE ".$AIGAION2_DB_PREFIX."keywords SET keyword='".mysqli_real_escape_string(bibCharsToUtf8FromString($row['keyword'])).
 					"' WHERE keyword_id='{$row['keyword_id']}' ");
 		}
 	}
@@ -572,8 +577,8 @@ function migrateOldDatabase($AIGAION1_DB_HOST, $AIGAION1_DB_USER, $AIGAION1_DB_P
 	//notes->text
 	$res = _query("SELECT * FROM ".$AIGAION2_DB_PREFIX."notes");
 	if ($res) {
-		while ($row = mysql_fetch_array($res)) {
-			_query("UPDATE ".$AIGAION2_DB_PREFIX."notes SET text='".mysql_real_escape_string(bibCharsToUtf8FromString($row['text'])).
+		while ($row = mysqli_fetch_array($res)) {
+			_query("UPDATE ".$AIGAION2_DB_PREFIX."notes SET text='".mysqli_real_escape_string(bibCharsToUtf8FromString($row['text'])).
 					"' WHERE note_id='{$row['note_id']}' ");
 		}
 	}
@@ -581,20 +586,20 @@ function migrateOldDatabase($AIGAION1_DB_HOST, $AIGAION1_DB_USER, $AIGAION1_DB_P
 	//publication->title, series, publisher, location, journal, booktitle, institution, address, organisation, school, note, abstract,
 	$res = _query("SELECT * FROM ".$AIGAION2_DB_PREFIX."publication");
 	if ($res) {
-		while ($row = mysql_fetch_array($res)) {
+		while ($row = mysqli_fetch_array($res)) {
 			_query("UPDATE ".$AIGAION2_DB_PREFIX."publication SET ".
-					"   title='".		mysql_real_escape_string(bibCharsToUtf8FromString($row['title'])).
-					"', series='".		mysql_real_escape_string(bibCharsToUtf8FromString($row['series'])).
-					"', publisher='".	mysql_real_escape_string(bibCharsToUtf8FromString($row['publisher'])).
-					"', location='". 	mysql_real_escape_string(bibCharsToUtf8FromString($row['location'])).
-					"', journal='".   	mysql_real_escape_string(bibCharsToUtf8FromString($row['journal'])).
-					"', booktitle='".	mysql_real_escape_string(bibCharsToUtf8FromString($row['booktitle'])).
-					"', institution='".	mysql_real_escape_string(bibCharsToUtf8FromString($row['institution'])).
-					"', address='".	mysql_real_escape_string(bibCharsToUtf8FromString($row['address'])).
-					"', organization='".	mysql_real_escape_string(bibCharsToUtf8FromString($row['organization'])).
-					"', school='".   	mysql_real_escape_string(bibCharsToUtf8FromString($row['school'])).
-					"', note='".		mysql_real_escape_string(bibCharsToUtf8FromString($row['note'])).
-					"', abstract='".	mysql_real_escape_string(bibCharsToUtf8FromString($row['abstract'])).
+					"   title='".		mysqli_real_escape_string(bibCharsToUtf8FromString($row['title'])).
+					"', series='".		mysqli_real_escape_string(bibCharsToUtf8FromString($row['series'])).
+					"', publisher='".	mysqli_real_escape_string(bibCharsToUtf8FromString($row['publisher'])).
+					"', location='". 	mysqli_real_escape_string(bibCharsToUtf8FromString($row['location'])).
+					"', journal='".   	mysqli_real_escape_string(bibCharsToUtf8FromString($row['journal'])).
+					"', booktitle='".	mysqli_real_escape_string(bibCharsToUtf8FromString($row['booktitle'])).
+					"', institution='".	mysqli_real_escape_string(bibCharsToUtf8FromString($row['institution'])).
+					"', address='".	mysqli_real_escape_string(bibCharsToUtf8FromString($row['address'])).
+					"', organization='".	mysqli_real_escape_string(bibCharsToUtf8FromString($row['organization'])).
+					"', school='".   	mysqli_real_escape_string(bibCharsToUtf8FromString($row['school'])).
+					"', note='".		mysqli_real_escape_string(bibCharsToUtf8FromString($row['note'])).
+					"', abstract='".	mysqli_real_escape_string(bibCharsToUtf8FromString($row['abstract'])).
 					"' WHERE pub_id='{$row['pub_id']}' ");
 		}
 	}
