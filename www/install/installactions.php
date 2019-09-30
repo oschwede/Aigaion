@@ -858,7 +858,9 @@ require_once BASEPATH.'core/CodeIgniter'.EXT;
         
     $success = fwrite($fp,$index_php);
     if ($success==FALSE) {
-        echo "<div class='errormessage'>Install failed because the install.php file could not be saved on the server. <b>Please copy the text below and save it as index.php in the aigaion root directory!</b> You are then ready to start using Aigaion.</div>";
+		echo "<div class='errormessage'>Install failed because the install.php file could not be saved on the server. 
+		<b>Please copy the text below and save it as index.php in the aigaion root directory!</b> 
+		You are then ready to start using Aigaion.</div>";
         echo "\n<textarea virtualcols=100 cols=80 rows=25>\n";
         echo $index_php;
         echo "\n</textarea>";
