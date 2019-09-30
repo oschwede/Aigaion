@@ -636,7 +636,7 @@ function checkEmptyTopics()
   FROM ".AIGAION_DB_PREFIX."topics LEFT JOIN ".AIGAION_DB_PREFIX."topicpublicationlink
   ON (".AIGAION_DB_PREFIX."topics.topic_id = ".AIGAION_DB_PREFIX."topicpublicationlink.topic_id)
   WHERE ".AIGAION_DB_PREFIX."topicpublicationlink.topic_id IS NULL");
-  if ($Q->num_rows($Q) > 0) {
+  if ($Q->num_rows() > 0) {
     foreach ($Q->result() as $R) {
       $report .= "<li>".anchor('topics/single/'.$R->topic_id,$R->name)."</li>\n";
     }
@@ -654,30 +654,31 @@ function checkTopicPublicationAncestors($topics = array())
 {
   $nrOfFixes = 0;
   $parentTopics = array();
+  $CI = &get_instance();
   if (count($topics) > 0) {
     foreach($topics as $child) {
       $childPublications = array();
       $parentPublications = array();
       //fetch parent
       $parent = 1;
-      $Q = mysql_query("SELECT target_topic_id FROM ".AIGAION_DB_PREFIX."topictopiclink WHERE source_topic_id = ".$child);
-      if (mysql_num_rows($Q) > 0) {
-        $R = mysql_fetch_array($Q);
+      $Q = $CI->db->query("SELECT target_topic_id FROM ".AIGAION_DB_PREFIX."topictopiclink WHERE source_topic_id = ".$child);
+      if ($Q->num_rows() > 0) {
+        $R = $Q->row_array();
         $parent = $R['target_topic_id'];
       }
 
       //fetch child publications
-      $Q = mysql_query("SELECT pub_id FROM ".AIGAION_DB_PREFIX."topicpublicationlink WHERE topic_id = ".$child);
-      if (mysql_num_rows($Q) > 0) {
-        while ($R = mysql_fetch_array($Q)) {
+      $Q = $CI->db->query("SELECT pub_id FROM ".AIGAION_DB_PREFIX."topicpublicationlink WHERE topic_id = ".$child);
+      if ($Q->num_rows() > 0) {
+        foreach ($Q->result_array() as $R) {
           $childPublications[] = $R['pub_id'];
         }
       }
 
       //fetch parent publications
-      $Q = mysql_query("SELECT pub_id FROM ".AIGAION_DB_PREFIX."topicpublicationlink WHERE topic_id = ".$parent);
-      if (mysql_num_rows($Q) > 0) {
-        while ($R = mysql_fetch_array($Q)) {
+      $Q = $CI->db->query("SELECT pub_id FROM ".AIGAION_DB_PREFIX."topicpublicationlink WHERE topic_id = ".$parent);
+      if ($Q->num_rows() > 0) {
+        foreach ($Q->result_array() as $R) {
           $parentPublications[] = $R['pub_id'];
         }
       }
@@ -687,7 +688,7 @@ function checkTopicPublicationAncestors($topics = array())
 
       //missing pubs: add to topicpublication
       foreach ($missingPubs as $pub_id) {
-        $Q = mysql_query("INSERT INTO ".AIGAION_DB_PREFIX."topicpublicationlink (topic_id, pub_id) VALUES ('".$parent."', '".$pub_id."')");
+        $Q = $CI->db->query("INSERT INTO ".AIGAION_DB_PREFIX."topicpublicationlink (topic_id, pub_id) VALUES ('".$parent."', '".$pub_id."')");
         $nrOfFixes++;
       }
 
@@ -709,7 +710,7 @@ function getLeafTopicIds(&$leafs, $root = 1)
 {
   $CI = &get_instance();
   $Q = $CI->db->query("SELECT source_topic_id FROM ".AIGAION_DB_PREFIX."topictopiclink WHERE target_topic_id = ".$root);
-  if ($Q->num_rows($Q) > 0) {
+  if ($Q->num_rows() > 0) {
     foreach ($Q->result() as $R) {
       getLeafTopicIds($leafs, $R->source_topic_id);
     }
@@ -729,16 +730,18 @@ function checkNoteXrefIDs()
 function checkAuthorPublicationLinks()
 {
   $count = 0;
-  $Q = mysql_query("SELECT ".AIGAION_DB_PREFIX."publicationauthorlink.author_id
+  $CI = &get_instance();
+
+  $Q = $CI->db->query("SELECT ".AIGAION_DB_PREFIX."publicationauthorlink.author_id
   FROM ".AIGAION_DB_PREFIX."publicationauthorlink
   LEFT JOIN ".AIGAION_DB_PREFIX."author
   ON (".AIGAION_DB_PREFIX."publicationauthorlink.author_id = ".AIGAION_DB_PREFIX."author.author_id)
   WHERE ".AIGAION_DB_PREFIX."author.author_id IS NULL");
-  if (mysql_num_rows($Q) > 0)
+  if ($Q->num_rows() > 0)
   {
-    while ($R = mysql_fetch_array($Q))
+    foreach ($Q->result_array() as $R)
     {
-      $Q2 = mysql_query("DELETE FROM ".AIGAION_DB_PREFIX."publicationauthorlink WHERE author_id = '".$R['author_id']."'");
+      $Q2 = $CI->db->query("DELETE FROM ".AIGAION_DB_PREFIX."publicationauthorlink WHERE author_id = '".$R['author_id']."'");
       $count++;
     }
   }
@@ -793,16 +796,16 @@ function checkNonPublishingAuthors()
   $result = "";
   $report = "";
 
-  $Q = mysql_query(
+  $Q = $CI->db->query(
   "SELECT ".AIGAION_DB_PREFIX."author.*
   FROM ".AIGAION_DB_PREFIX."author
   LEFT JOIN ".AIGAION_DB_PREFIX."publicationauthorlink
   ON (".AIGAION_DB_PREFIX."author.author_id = ".AIGAION_DB_PREFIX."publicationauthorlink.author_id)
   WHERE ".AIGAION_DB_PREFIX."publicationauthorlink.author_id IS NULL
   ORDER BY cleanname");
-  if (mysql_num_rows($Q) > 0) {
+  if ($Q->num_rows() > 0) {
 
-    while ($R = mysql_fetch_array($Q)) {
+    foreach ($Q->result_array() as $R) {
       $author = $CI->author_db->getByID($R['author_id']);
       $pubs = $CI->publication_db->getForAuthor($author->author_id,'',-1,true);
       if (count($pubs)==0)
@@ -818,7 +821,7 @@ function checkNonPublishingAuthors()
 /** Delete all authors without publications. No other checks, no feedback other than the number of deleted authors. */
 function deleteNonPublishingAuthors() {
   $CI = &get_instance();
-  $Q = mysql_query(
+  $Q = $CI->db->query(
   "SELECT ".AIGAION_DB_PREFIX."author.*
   FROM ".AIGAION_DB_PREFIX."author
   LEFT JOIN ".AIGAION_DB_PREFIX."publicationauthorlink
@@ -826,8 +829,8 @@ function deleteNonPublishingAuthors() {
   WHERE ".AIGAION_DB_PREFIX."publicationauthorlink.author_id IS NULL
   ORDER BY cleanname");
   $num = 0;
-  if (mysql_num_rows($Q) > 0) {
-    while ($R = mysql_fetch_array($Q)) {
+  if ($Q->num_rows() > 0) {
+    foreach ($Q->result_array() as $R) {
       $author = $CI->author_db->getByID($R['author_id']);
       $pubs = $CI->publication_db->getForAuthor($author->author_id,'',-1,true);
       if (count($pubs)==0)
@@ -860,17 +863,18 @@ function removeAuthorSynonyms()
 
 function checkKeywordPublicationLinks()
 {
+  $CI = &get_instance();
   $count = 0;
-  $Q = mysql_query("SELECT ".AIGAION_DB_PREFIX."publicationkeywordlink.keyword_id
+  $Q = $CI->db->query("SELECT ".AIGAION_DB_PREFIX."publicationkeywordlink.keyword_id
   FROM ".AIGAION_DB_PREFIX."publicationkeywordlink
   LEFT JOIN ".AIGAION_DB_PREFIX."keywords
   ON (".AIGAION_DB_PREFIX."publicationkeywordlink.keyword_id = ".AIGAION_DB_PREFIX."keywords.keyword_id)
   WHERE ".AIGAION_DB_PREFIX."keywords.keyword_id IS NULL");
-  if (mysql_num_rows($Q) > 0)
+  if ($Q->num_rows() > 0)
   {
-    while ($R = mysql_fetch_array($Q))
+    foreach ($Q->result_array() as $R)
     {
-      $Q2 = mysql_query("DELETE FROM ".AIGAION_DB_PREFIX."publicationkeywordlink WHERE keyword_id = '".$R['keyword_id']."'");
+      $Q2 = $CI->db->query("DELETE FROM ".AIGAION_DB_PREFIX."publicationkeywordlink WHERE keyword_id = '".$R['keyword_id']."'");
       $count++;
     }
   }
@@ -913,16 +917,16 @@ function checkUnusedKeywords()
   $result = "";
   $report = "";
 
-  $Q = mysql_query(
+  $Q = $CI->db->query(
   "SELECT ".AIGAION_DB_PREFIX."keywords.*
   FROM ".AIGAION_DB_PREFIX."keywords
   LEFT JOIN ".AIGAION_DB_PREFIX."publicationkeywordlink
   ON (".AIGAION_DB_PREFIX."keywords.keyword_id = ".AIGAION_DB_PREFIX."publicationkeywordlink.keyword_id)
   WHERE ".AIGAION_DB_PREFIX."publicationkeywordlink.keyword_id IS NULL
   ORDER BY cleankeyword");
-  if (mysql_num_rows($Q) > 0) {
+  if ($Q->num_rows() > 0) {
 
-    while ($R = mysql_fetch_array($Q)) {
+    foreach ($Q->result_array() as $R) {
       $keyword = $CI->keyword_db->getFromRow($R);
       $report .= "<li>".anchor('keywords/single/'.$keyword->keyword_id,$keyword->keyword)."</li>\n";
     }
@@ -937,7 +941,7 @@ function checkUnusedKeywords()
 function deleteUnusedKeywords()
 {
   $CI = &get_instance();
-  $Q = mysql_query(
+  $Q = $CI->db->query(
   "SELECT ".AIGAION_DB_PREFIX."keywords.*
   FROM ".AIGAION_DB_PREFIX."keywords
   LEFT JOIN ".AIGAION_DB_PREFIX."publicationkeywordlink
@@ -945,8 +949,8 @@ function deleteUnusedKeywords()
   WHERE ".AIGAION_DB_PREFIX."publicationkeywordlink.keyword_id IS NULL
   ORDER BY cleankeyword");
   $num = 0;
-  if (mysql_num_rows($Q) > 0) {
-    while ($R = mysql_fetch_array($Q)) {
+  if ($Q->num_rows() > 0) {
+    foreach ($Q->result_array() as $R) {
       $CI->keyword_db->delete($R['keyword_id']);
       $num++;
     }

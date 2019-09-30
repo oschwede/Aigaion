@@ -11,7 +11,7 @@ then update the database with new settings
 class Siteconfig_db {
     
   
-    function Siteconfig_db()
+    function __construct()
     {
     }
      
@@ -378,10 +378,9 @@ class Siteconfig_db {
         	$CI->db->query("INSERT IGNORE INTO ".AIGAION_DB_PREFIX."config (setting) VALUES (".$CI->db->escape($setting).")");
         	#update value
             $CI->db->where('setting', $setting);
-            $CI->db->update('config', array('value'=>$value));
-        	if (mysql_error()) {
+            $updateQ = $CI->db->update('config', array('value'=>$value));
+        	if (! $updateQ) {
         		appendErrorMessage(__("Error updating config").": <br/>");
-        		appendErrorMessage(mysql_error()."<br/>");
         	}
         }
     	#upload (from post) new custom logo, if available

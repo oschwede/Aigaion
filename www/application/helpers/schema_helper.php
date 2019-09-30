@@ -95,9 +95,9 @@ function checkVersion($v, $bSilent=false) {
 //set the version of the database to the given version; show some debug information.
 function setVersion($v, $bSilent=false) {
     $CI = &get_instance();
-    $CI->db->query("UPDATE ".AIGAION_DB_PREFIX."aigaiongeneral SET version='".$v."'");
-	if (mysql_error()) {
-		dbError(mysql_error());
+    $Q = $CI->db->query("UPDATE ".AIGAION_DB_PREFIX."aigaiongeneral SET version='".$v."'");
+    if (! $Q) {
+		dbError("setVersion failed");
 		return false;
 	}
 	if (!$bSilent)
@@ -114,11 +114,11 @@ function setReleaseVersion($v, $type, $description, $bSilent=false) {
     $CI->load->helper('utf8');
     include_once(APPPATH.'/include/utf8/str_ireplace.php');
     $description = utf8_ireplace('<','',$description);
-    $CI->db->insert('changehistory',array('version'=>$v,'type'=>$type,'description'=>$description));
-	if (mysql_error()) {
-		dbError(mysql_error());
-		return false;
-	}
+    $Q = $CI->db->insert('changehistory',array('version'=>$v,'type'=>$type,'description'=>$description));
+    if (! $Q) {
+        dbError("setReleaseVersion failed");
+        return False;
+    }
 	if (!$bSilent)
 	{
 		appendMessage(sprintf(__("Update to release version %s"),$v)." ".__("Succeeded").".<br/>");

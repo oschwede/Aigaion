@@ -19,7 +19,7 @@
 class Author_db {
   
   
-  function Author_db()
+  function __construct()
   {
   }
 
@@ -738,9 +738,9 @@ TODO:
     
     $cleanAuthorName = strtolower($author->cleanname);
     
-    if (sizeof($cleanAuthorName) < 4)
+    if (strlen($cleanAuthorName) < 4)
       $dist_threshold = 2;
-    else if (sizeof($cleanAuthorName) < 8)
+    else if (strlen($cleanAuthorName) < 8)
       $dist_threshold = 3;
     else
       $dist_threshold = 4;

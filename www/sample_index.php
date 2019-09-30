@@ -20,6 +20,8 @@
 /*==== MANDATORY SETTINGS */
 #Root URL of this instance Aigaion, WITH trailing slash
 define('AIGAION_ROOT_URL','http://localhost/aigaion2root/');
+#Root directory for including files WITH trailing slash
+define('AIGAION_ROOT_DIR', '/var/www/aigaion/');
 #Unique ID of this site, to keep it separate from other installations that use same engine 
 #NOTE: use only alphanumeric characters, no spaces, and at least one letter. Otherwise Aigaion won't work at all.
 define('AIGAION_SITEID', 'AigaionInstance1');
