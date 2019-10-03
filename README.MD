@@ -1,9 +1,25 @@
-# INSTALLATION
+# Aigaion
+
+Web based reference manager
+
+## Announcement
+
+Aigaion is a great reference manager, suitable for personal or corporate user. It is quite old but the concept behind it is very interesting and helpful.
+
+The update process is slow because it is done on my free time but with community contribution I hope it can be maintained for a long time.
+
+## Changelog
+
+* 2/10/2019 - Today the project was migrated to aigaion organization.
+* 31/7/2019 - With pull request from @mahermanns, aigaion is able to run on modern php (>v7) by removing direct reference to mysql functions and migrating to mysqli lib.
+
+
+## Installation
 
 Aigaion relies on modrewrite from web server. It comes with .htaccess suitable for apache.
 Please modify as needed.
 
-## CLEAN INSTALL
+### Clean install
     
 This documentation is for installing Aigaion 2.5 from scratch, with an empty database
     
@@ -19,7 +35,7 @@ This documentation is for installing Aigaion 2.5 from scratch, with an empty dat
 
     From there on, follow the instructions on the screen.
 
-## UPGRADE FROM AIGAION 2.x
+### UPGRADE FROM AIGAION 2.x
 
     1) Perform a backup of the current files in "<WEBROOT>"
     2) Perform a backup of the database
@@ -29,7 +45,7 @@ This documentation is for installing Aigaion 2.5 from scratch, with an empty dat
     6) Rename "sample_index.php" to "index.php" and edit values according to the values in your old "index.php"
     7) login as database admin to upgrade the database structure
 
-## UPGRADE FROM AIGAION 1.x
+### UPGRADE FROM AIGAION 1.x
 
 This documentation is for updating Aigaion 2.5 from an Aigaion 1.x installation
     
