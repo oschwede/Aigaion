@@ -11,4 +11,4 @@
 .idea
 
 #application specific
-#/www/application/logs/*
+/www/application/logs/log*
